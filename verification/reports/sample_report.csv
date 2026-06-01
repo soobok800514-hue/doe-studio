@@ -1,0 +1,61 @@
+﻿Benchmark,Source,Metric,Expected,Actual,AbsDiff,RelDiff,Tolerance,Passed,Note
+1. OA 직교성 검증,Phadke (1989) p.51,L4 직교성 (검사 컬럼 쌍 3개),0,0,0.0,0.0,0.0,True,위반 쌍 = 0이면 완전 직교
+1. OA 직교성 검증,Phadke (1989) p.51,L8 직교성 (검사 컬럼 쌍 21개),0,0,0.0,0.0,0.0,True,위반 쌍 = 0이면 완전 직교
+1. OA 직교성 검증,Phadke (1989) p.51,L9 직교성 (검사 컬럼 쌍 6개),0,0,0.0,0.0,0.0,True,위반 쌍 = 0이면 완전 직교
+1. OA 직교성 검증,Phadke (1989) p.51,L12 직교성 (검사 컬럼 쌍 55개),0,0,0.0,0.0,0.0,True,위반 쌍 = 0이면 완전 직교
+1. OA 직교성 검증,Phadke (1989) p.51,L16 직교성 (검사 컬럼 쌍 105개),0,0,0.0,0.0,0.0,True,위반 쌍 = 0이면 완전 직교
+1. OA 직교성 검증,Phadke (1989) p.51,L18 직교성 (검사 컬럼 쌍 28개),0,0,0.0,0.0,0.0,True,위반 쌍 = 0이면 완전 직교
+1. OA 직교성 검증,Phadke (1989) p.51,L27 직교성 (검사 컬럼 쌍 78개),0,0,0.0,0.0,0.0,True,위반 쌍 = 0이면 완전 직교
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,"L9 첫 번째 컬럼 = (1,1,1,2,2,2,3,3,3)","[1, 1, 1, 2, 2, 2, 3, 3, 3]","[1, 1, 1, 2, 2, 2, 3, 3, 3]",nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,"L9 첫 번째 행 = (1,1,1,1)","[1, 1, 1, 1]","[1, 1, 1, 1]",nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,"L8 첫 번째 컬럼 = (1,1,1,1,2,2,2,2)","[1, 1, 1, 1, 2, 2, 2, 2]","[1, 1, 1, 1, 2, 2, 2, 2]",nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,"L18 첫 번째 컬럼 = 1×9, 2×9 (2수준)","[1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2]","[1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2]",nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,"L27 첫 번째 컬럼 = 1×9, 2×9, 3×9","[1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3]","[1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3]",nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,"L4 첫 번째 컬럼 = (1,1,2,2)","[1, 1, 2, 2]","[1, 1, 2, 2]",nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,추천 OA (3인자 2수준),L4,L4,nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,추천 OA (4인자 3수준),L9,L9,nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,추천 OA (7인자 2수준),L8,L8,nan,nan,0.0,True,
+2. 표준 OA 카탈로그 일치성,Minitab Catalogue of Taguchi designs / NIST Handbook,추천 OA (13인자 3수준),L27,L27,nan,nan,0.0,True,
+3. S/N 비 수기 계산,Phadke (1989) Eq. 5.2-5.4,"S/N Larger [10,12,11]",20.755672,20.755672,0.0,0.0,1e-08,True,η = -10·log₁₀(mean(1/y²))
+3. S/N 비 수기 계산,Phadke (1989) Eq. 5.2-5.4,"S/N Smaller [10,12,11]",-20.851716,-20.851716,0.0,0.0,1e-08,True,η = -10·log₁₀(mean(y²))
+3. S/N 비 수기 계산,Phadke (1989) Eq. 5.2-5.4,"S/N Nominal [10,12,11]",20.827854,20.827854,0.0,0.0,1e-08,True,"η = 10·log₁₀(ȳ²/s²), s²는 ddof=1"
+3. S/N 비 수기 계산,Phadke (1989) Eq. 5.2-5.4,S/N Larger 단일값 [5.0],13.9794,13.9794,0.0,0.0,1e-08,True,
+3. S/N 비 수기 계산,Phadke (1989) Eq. 5.2-5.4,S/N Larger 음수 입력 → NaN,True,True,0.0,0.0,0.0,True,0 또는 음수가 있으면 정의 불가
+4. ANOVA vs statsmodels 교차 검증,statsmodels 0.14+ (독립 구현),SS_A,23.834622,23.834622,6.394884621840902e-14,2.6830232885580634e-15,1e-06,True,직교 설계에서는 완전 일치해야 함
+4. ANOVA vs statsmodels 교차 검증,statsmodels 0.14+ (독립 구현),SS_B,1.249271,1.249271,1.1102230246251565e-15,8.886966249449338e-16,1e-06,True,직교 설계에서는 완전 일치해야 함
+4. ANOVA vs statsmodels 교차 검증,statsmodels 0.14+ (독립 구현),SS_F,0.098527,0.098527,1.304512053934559e-15,1.3240099029667926e-14,1e-06,True,직교 설계에서는 완전 일치해야 함
+4. ANOVA vs statsmodels 교차 검증,statsmodels 0.14+ (독립 구현),SS_Error,0.224142,0.224142,5.578870698741412e-15,2.488985986408259e-14,1e-06,True,직교 설계에서는 완전 일치해야 함
+4. ANOVA vs statsmodels 교차 검증,statsmodels 0.14+ (독립 구현),F_A 통계량,106.337006,106.337006,2.3590018827235326e-12,2.218420455373605e-14,0.0001,True,
+4. ANOVA vs statsmodels 교차 검증,statsmodels 0.14+ (독립 구현),p-value_A,0.009316,0.009316,2.1684043449710089e-16,2.3275002920792035e-14,0.0001,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_larger(y=5, L=10, T=20) = 0",0.0000e+00,0.0000e+00,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_larger(y=10, L=10, T=20) = 0",0.0000e+00,0.0000e+00,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_larger(y=15, L=10, T=20) = 0.5 (선형)",0.5,0.5,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_larger(y=20, L=10, T=20) = 1",1,1,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_larger(y=25, L=10, T=20) = 1",1,1,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_smaller(y=2, T=5, U=15) = 1",1,1,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_smaller(y=10, T=5, U=15) = 0.5 (선형)",0.5,0.5,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_smaller(y=20, T=5, U=15) = 0",0.0000e+00,0.0000e+00,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_target(y=3, L=4, T=5, U=6) = 0",0.0000e+00,0.0000e+00,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_target(y=4.5, T=5) = 0.5 (좌측 선형)",0.5,0.5,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_target(y=5, T=5) = 1",1,1,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),"d_target(y=5.5, T=5, U=6) = 0.5 (우측 선형)",0.5,0.5,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),Overall D = (0.5×0.8×0.6)^(1/3),0.621447,0.621447,0.0,0.0,1e-09,True,
+5. Desirability 함수 경계점,NIST Handbook 5.5.3.2.2 / Derringer & Suich (1980),한 응답 d=0이면 Overall D=0,0.0000e+00,0.0000e+00,0.0,0.0,1e-12,True,
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 Y1(x*) ≈ 136.4,136.4,136.459975,0.05997499999998013,0.0004396994134895904,0.5,True,응답 모델 재현 검증
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 Y2(x*) ≈ 1571.05,1571.05,1572.08455,1.0345499999998538,0.000658508640717898,5.0,True,
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 Y3(x*) ≈ 450.56,450.56,450.177,0.38299999999998136,0.0008500532670454132,0.5,True,
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 Y4(x*) ≈ 69.26,69.26,69.253205,0.006794999999982565,9.810857637861052e-05,0.5,True,
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 d1 ≈ 0.34 (≈(136.4-120)/50),0.34,0.329199,0.010800500000000324,0.031766176470589186,0.02,True,
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 d2 = 1.0,1,1,0.0,0.0,1e-06,True,
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 d3 ≈ 0.49,0.49,0.50177,0.01177000000000017,0.02402040816326565,0.03,True,
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 d4 ≈ 0.76,0.76,0.766239,0.006239333333330266,0.00820964912280298,0.03,True,
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),NIST x*에서 D ≈ 0.596,0.596,0.596461,0.00046103143780984457,0.000773542680889001,0.01,True,발표된 D = 0.596
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),자체 최적화 D ≥ NIST 발표 D (0.596),>= 0.596,0.6383,nan,nan,1e-06,True,최적화기가 NIST 발표 해와 동등 또는 더 나은 해를 찾아야 함
+6. NIST Derringer-Suich 타이어 트레드 (E2E),NIST Handbook §5.5.3.2.2 / Derringer & Suich (1980),최적화 수렴 상태,OK,OK,nan,nan,0.0,True,
+7. 최적화 수렴성 (Convex 검증),자체 정의 테스트 케이스,x* = 0.5 (단순 포물선),0.5,0.5,1.7989683076535812e-09,3.5979366153071624e-09,0.01,True,
+7. 최적화 수렴성 (Convex 검증),자체 정의 테스트 케이스,D ≈ 1.0 (이상적 최적),1,1,0.0,0.0,0.01,True,
+7. 최적화 수렴성 (Convex 검증),자체 정의 테스트 케이스,독립 트레이드오프: x1 = 1,1,1,0.0,0.0,0.02,True,
+7. 최적화 수렴성 (Convex 검증),자체 정의 테스트 케이스,독립 트레이드오프: x2 = 0,0.0000e+00,0.0000e+00,0.0,0.0,0.02,True,
+7. 최적화 수렴성 (Convex 검증),자체 정의 테스트 케이스,독립 트레이드오프: D = 1.0,1,1,0.0,0.0,0.02,True,
+7. 최적화 수렴성 (Convex 검증),자체 정의 테스트 케이스,상충 응답: x* = 0.5,0.5,0.5,3.472925835801277e-10,6.945851671602554e-10,0.01,True,
+7. 최적화 수렴성 (Convex 검증),자체 정의 테스트 케이스,상충 응답: D = 0.5,0.5,0.5,1.1102230246251565e-16,2.220446049250313e-16,0.01,True,
