@@ -266,23 +266,16 @@ if df is not None and len(df) > 0:
                     st.error(f"사양 설정 오류: {e}")
 
         # ============================================================
-        # Step 5: 최적화 실행
+        # Step 5: 최적화 실행 (이산 수준 격자 탐색)
         # ============================================================
         st.markdown("---")
         st.markdown("### Step 5. 최적화 실행")
-
-        col_opt1, col_opt2 = st.columns(2)
-        with col_opt1:
-            use_global = st.checkbox(
-                "전역 최적화 사용 (Differential Evolution)",
-                value=True,
-                help="기본 ON. 지역 최적해를 회피하기 위해."
-            )
-        with col_opt2:
-            n_restarts = st.number_input("Multi-start 횟수", value=10, min_value=1, max_value=50)
+        st.caption("정의된 인자 수준 조합 전체를 탐색하여 Desirability가 가장 높은 수준 조합을 찾습니다.")
 
         if st.button("🚀 최적화 실행", type="primary", use_container_width=True):
-            with st.spinner("최적 조건 탐색 중..."):
+            with st.spinner("수준 조합 탐색 중..."):
+                import itertools
+
                 # 예측 함수 생성
                 predict_funcs = {}
                 for rc in response_cols:
@@ -297,18 +290,57 @@ if df is not None and len(df) > 0:
                         return f
                     predict_funcs[rc] = make_pred(model, alias_map)
 
-                bounds = [factor_ranges[fc] for fc in factor_cols]
+                # 인자별 이산 수준 추출
+                factor_levels = {fc: sorted(df_clean[fc].unique()) for fc in factor_cols}
+                all_combos = list(itertools.product(*[factor_levels[fc] for fc in factor_cols]))
+                weights_list = [s.weight for s in specs]
 
-                result = optimize_desirability(
-                    predict_funcs=predict_funcs,
-                    specs=specs,
-                    bounds=bounds,
-                    factor_names=factor_cols,
-                    n_restarts=int(n_restarts),
-                    use_global=use_global,
-                )
+                best_D = -1.0
+                best_combo = None
+                best_pred = {}
+                best_ind_d = {}
 
-                st.session_state["opt_result"] = result
+                for combo in all_combos:
+                    x = np.array(combo, dtype=float)
+                    try:
+                        pred_vals = {}
+                        d_vals = []
+                        for spec in specs:
+                            if models.get(spec.name) is None:
+                                continue
+                            y_hat = predict_funcs[spec.name](x)
+                            pred_vals[spec.name] = y_hat
+                            d_vals.append(float(spec.desirability(y_hat)))
+                        if len(d_vals) < len(specs):
+                            continue
+                        D = overall_desirability(d_vals, weights_list)
+                        if D > best_D:
+                            best_D = D
+                            best_combo = combo
+                            best_pred = pred_vals
+                            best_ind_d = {
+                                s.name: float(s.desirability(pred_vals[s.name]))
+                                for s in specs
+                            }
+                    except Exception:
+                        continue
+
+                if best_combo is not None:
+                    optimal_levels = {
+                        fc: factor_levels[fc].index(val) + 1
+                        for fc, val in zip(factor_cols, best_combo)
+                    }
+                    st.session_state["opt_result"] = {
+                        "optimal_factors": dict(zip(factor_cols, best_combo)),
+                        "optimal_levels": optimal_levels,
+                        "factor_levels": factor_levels,
+                        "predicted_responses": best_pred,
+                        "individual_desirabilities": best_ind_d,
+                        "overall_desirability": best_D,
+                        "n_combos": len(all_combos),
+                    }
+                else:
+                    st.error("최적 조합을 찾지 못했습니다. 사양 범위를 확인하세요.")
 
         # 결과 표시
         if "opt_result" in st.session_state:
@@ -319,36 +351,45 @@ if df is not None and len(df) > 0:
             with col_r1:
                 st.metric("전체 Desirability D", f"{result['overall_desirability']:.4f}",
                           help="1에 가까울수록 좋음. 0이면 한 응답 이상 사양 미달.")
-                st.caption(f"수렴 상태: {result['convergence']}")
+                st.caption(f"탐색한 수준 조합 수: {result.get('n_combos', '-')}개")
 
             if result["optimal_factors"]:
                 with col_r2:
                     st.markdown("**최적 인자 조건**")
-                    opt_df = pd.DataFrame([
-                        {"인자": k, "최적값": f"{v:.4f}"}
-                        for k, v in result["optimal_factors"].items()
-                    ])
-                    st.dataframe(opt_df, use_container_width=True, hide_index=True)
+                    rows = []
+                    for fc in factor_cols:
+                        lv_num = result["optimal_levels"][fc]
+                        lv_val = result["optimal_factors"][fc]
+                        all_lvs = result["factor_levels"][fc]
+                        rows.append({
+                            "인자": fc,
+                            "최적 수준": f"수준 {lv_num}",
+                            "값": f"{lv_val:.4f}",
+                            "전체 수준": " / ".join(
+                                [f"Lv{i+1}={v:.4f}" for i, v in enumerate(all_lvs)]
+                            ),
+                        })
+                    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
                 st.markdown("**예측 응답값과 개별 Desirability**")
-                resp_df = pd.DataFrame([
-                    {
-                        "응답": rc,
-                        "예측값": f"{result['predicted_responses'][rc]:.4f}",
-                        "개별 d": f"{result['individual_desirabilities'][rc]:.4f}",
-                        "상태": "✅" if result['individual_desirabilities'][rc] > 0.6 else
-                                ("⚠️" if result['individual_desirabilities'][rc] > 0.3 else "❌"),
-                    }
-                    for rc in response_cols if rc in result['predicted_responses']
-                ])
-                st.dataframe(resp_df, use_container_width=True, hide_index=True)
+                resp_rows = []
+                for rc in response_cols:
+                    if rc in result["predicted_responses"]:
+                        ind_d = result["individual_desirabilities"][rc]
+                        resp_rows.append({
+                            "응답": rc,
+                            "예측값": f"{result['predicted_responses'][rc]:.4f}",
+                            "개별 d": f"{ind_d:.4f}",
+                            "상태": "✅" if ind_d > 0.6 else ("⚠️" if ind_d > 0.3 else "❌"),
+                        })
+                st.dataframe(pd.DataFrame(resp_rows), use_container_width=True, hide_index=True)
 
                 if result["overall_desirability"] > 0.7:
                     st.success(f"✅ D = {result['overall_desirability']:.3f} : 우수한 최적해")
                 elif result["overall_desirability"] > 0.4:
                     st.warning(f"⚠️ D = {result['overall_desirability']:.3f} : 일부 응답 트레이드오프 발생. 가중치 조정 검토.")
                 else:
-                    st.error(f"❌ D = {result['overall_desirability']:.3f} : 사양 자체가 너무 엄격하거나 모형이 부적합.")
+                    st.error(f"❌ D = {result['overall_desirability']:.3f} : 사양이 너무 엄격하거나 모형이 부적합.")
 
                 st.info(
                     "💡 **확인 실험 권장**: 위 최적 인자 조건으로 1~3회 실시험을 진행하여 "
