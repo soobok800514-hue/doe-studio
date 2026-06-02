@@ -16,6 +16,7 @@ from core.analysis import (
     response_table, find_optimal_levels, predict_optimum,
     anova_taguchi, get_level_map,
 )
+from core.export import to_excel, to_pdf
 
 st.set_page_config(page_title="Taguchi 분석", page_icon="📊", layout="wide")
 st.title("📊 Taguchi 분석")
@@ -161,6 +162,7 @@ if df is not None and len(df) > 0:
 
         # ----- 4-2. S/N 응답표 -----
         st.markdown(f"#### 4-2. S/N 응답표 ({sn_type})")
+        sn_tbl = None  # 내보내기를 위해 스코프 밖에서 초기화
 
         # 반복이 없으면 nominal 불가
         n_replicates = df_clean.groupby(factor_cols).size().max()
@@ -292,6 +294,62 @@ if df is not None and len(df) > 0:
             "💡 **확인 실험 권장**: 위 최적 조건으로 1~3회 추가 시험하여 "
             "예측치와 실측치가 일치하는지 검증하세요."
         )
+
+        # ============================================================
+        # Step 5: 결과 내보내기
+        # ============================================================
+        st.markdown("---")
+        st.markdown("### 📤 결과 내보내기")
+
+        fname_base = f"DOE_분석_{response_col}"
+        col_dl1, col_dl2 = st.columns(2)
+
+        with col_dl1:
+            try:
+                excel_bytes = to_excel(
+                    df_data=df_clean,
+                    mean_tbl=mean_tbl,
+                    sn_tbl=sn_tbl,
+                    anova_df=anova_df,
+                    opt_df=opt_df,
+                    y_pred=y_pred,
+                    response_col=response_col,
+                    sn_type=sn_type,
+                    factor_cols=factor_cols,
+                )
+                st.download_button(
+                    label="📥 Excel 다운로드 (.xlsx)",
+                    data=excel_bytes,
+                    file_name=f"{fname_base}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True,
+                )
+            except Exception as e:
+                st.error(f"Excel 생성 오류: {e}")
+
+        with col_dl2:
+            try:
+                pdf_bytes = to_pdf(
+                    df_data=df_clean,
+                    mean_tbl=mean_tbl,
+                    sn_tbl=sn_tbl,
+                    anova_df=anova_df,
+                    opt_df=opt_df,
+                    y_pred=y_pred,
+                    response_col=response_col,
+                    sn_type=sn_type,
+                    factor_cols=factor_cols,
+                )
+                st.download_button(
+                    label="📄 PDF 다운로드 (.pdf)",
+                    data=pdf_bytes,
+                    file_name=f"{fname_base}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                )
+            except Exception as e:
+                st.error(f"PDF 생성 오류: {e}")
+
 else:
     if df is not None:
         st.warning("데이터가 비어있습니다.")
