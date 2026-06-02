@@ -82,20 +82,36 @@ st.markdown("### Step 2. 직교배열표 선택")
 
 try:
     recommended = recommend_oa(int(n_factors), factor_levels_count)
-    st.success(f"💡 **추천 OA**: `{recommended}` "
-               f"({OA_CATALOG[recommended]['runs']}회 시험, "
-               f"최대 {OA_CATALOG[recommended]['max_factors']}인자 수용)")
+    if recommended == "FULL":
+        n_full = int(np.prod(factor_levels_count))
+        level_str = " × ".join(str(l) for l in factor_levels_count)
+        st.success(
+            f"💡 **추천: 완전요인배치 (Full Factorial)** — "
+            f"{level_str} = **{n_full}회 시험** "
+            f"(인자 수가 적어 모든 조합을 직접 시험하는 것이 L18(18회)보다 효율적)"
+        )
+    else:
+        st.success(f"💡 **추천 OA**: `{recommended}` "
+                   f"({OA_CATALOG[recommended]['runs']}회 시험, "
+                   f"최대 {OA_CATALOG[recommended]['max_factors']}인자 수용)")
 except ValueError as e:
     st.error(f"❌ 추천 실패: {e}")
     recommended = "L9"
 
 # 사용자가 다른 OA 선택 가능
 available_oas = list(OA_CATALOG.keys())
+
+def _oa_label(x):
+    if x == "FULL":
+        n_full = int(np.prod(factor_levels_count)) if factor_levels_count else 0
+        return f"완전요인배치 ({n_full} runs, 모든 조합)"
+    return f"{x} ({OA_CATALOG[x]['runs']} runs, {OA_CATALOG[x]['type']})"
+
 oa_choice = st.selectbox(
     "사용할 OA 선택",
     options=available_oas,
     index=available_oas.index(recommended),
-    format_func=lambda x: f"{x} ({OA_CATALOG[x]['runs']} runs, {OA_CATALOG[x]['type']})",
+    format_func=_oa_label,
 )
 
 # 호환성 검사
@@ -103,7 +119,14 @@ oa_info = OA_CATALOG[oa_choice]
 warning = None
 dummy_factors = []
 
-if n_factors > oa_info["max_factors"]:
+if oa_choice == "FULL":
+    n_full = int(np.prod(factor_levels_count))
+    st.info(
+        f"ℹ️ **완전요인배치**: "
+        f"{'×'.join(str(l) for l in factor_levels_count)} = **{n_full}개 조합** 전부 시험. "
+        f"교호작용(상호작용) 분석 가능, 최적 조합을 놓칠 위험 없음."
+    )
+elif n_factors > oa_info["max_factors"]:
     warning = f"⚠️ {oa_choice}는 최대 {oa_info['max_factors']}인자만 지원하지만 {n_factors}개 입력됨."
 else:
     # auto_reorder + 더미 수준 고려한 배치 가능 여부 검사
@@ -135,20 +158,30 @@ elif dummy_factors:
 
 # OA 메타 표시
 with st.expander("📋 선택한 OA 상세 정보"):
-    st.markdown(f"""
+    if oa_choice == "FULL":
+        n_full = int(np.prod(factor_levels_count))
+        level_str = " × ".join(str(l) for l in factor_levels_count)
+        st.markdown(f"""
+    - **방법**: 완전요인배치 (Full Factorial Design)
+    - **시험 횟수**: {level_str} = **{n_full}회**
+    - **특징**: 모든 인자 조합 포함 → 교호작용 분석 가능, 최적 조합 누락 없음
+    - **권장 상황**: 인자 수 ≤ 4, 총 시험 횟수 관리 가능할 때
+        """)
+    else:
+        st.markdown(f"""
     - **이름**: {oa_choice}
     - **시험 횟수 (Runs)**: {oa_info['runs']}
     - **최대 인자 수**: {oa_info['max_factors']}
     - **수준 구조**: {oa_info['levels']}
     - **유형**: {oa_info['type']}
-    """)
-    st.markdown("**원형 OA 매트릭스 (수준 인덱스 1, 2, 3):**")
-    oa_df = pd.DataFrame(
-        oa_info["array"],
-        columns=[f"Col{i+1}" for i in range(oa_info["array"].shape[1])],
-        index=[f"Run {i+1}" for i in range(oa_info["array"].shape[0])],
-    )
-    st.dataframe(oa_df, use_container_width=True)
+        """)
+        st.markdown("**원형 OA 매트릭스 (수준 인덱스 1, 2, 3):**")
+        oa_df = pd.DataFrame(
+            oa_info["array"],
+            columns=[f"Col{i+1}" for i in range(oa_info["array"].shape[1])],
+            index=[f"Run {i+1}" for i in range(oa_info["array"].shape[0])],
+        )
+        st.dataframe(oa_df, use_container_width=True)
 
 # ============================================================
 # Step 3: 옵션

@@ -155,6 +155,7 @@ L27 = _generate_L27()
 # ============================================================
 
 OA_CATALOG = {
+    "FULL": {"array": None, "runs": -1,  "levels": [],               "max_factors": 15, "type": "완전요인배치 (Full Factorial)"},
     "L4":  {"array": L4,  "runs": 4,  "levels": [2, 2, 2],          "max_factors": 3,  "type": "2수준"},
     "L8":  {"array": L8,  "runs": 8,  "levels": [2]*7,              "max_factors": 7,  "type": "2수준"},
     "L9":  {"array": L9,  "runs": 9,  "levels": [3]*4,              "max_factors": 4,  "type": "3수준"},
@@ -225,6 +226,10 @@ def recommend_oa(n_factors: int, levels_per_factor: List[int]) -> str:
         # 2수준 인자는 더미 수준(Dummy Level)으로 3수준 컬럼에도 배치 가능
         # 조건: n_3 <= 7, n_2 + n_3 <= 8 (총 8컬럼)
         if n_3 <= 7 and (n_2 + n_3) <= 8:
+            n_full = int(np.prod(levels_per_factor))
+            # 완전요인배치 시험 수가 L18(18회) 이하면 완전요인배치가 더 효율적
+            if n_full <= 18:
+                return "FULL"
             return "L18"
         else:
             # 표준 OA로 직접 처리 불가능한 혼합 케이스
@@ -306,6 +311,27 @@ def build_design(
     """
     if oa_name not in OA_CATALOG:
         raise ValueError(f"지원하지 않는 OA: {oa_name}. 사용 가능: {list(OA_CATALOG.keys())}")
+
+    # 완전요인배치 처리
+    if oa_name == "FULL":
+        import itertools as _it
+        factor_names = list(factors.keys())
+        all_levels = [factors[fn]["levels"] for fn in factor_names]
+        combos = list(_it.product(*all_levels))
+        n_runs = len(combos)
+        design_data = {"Std_Order": list(range(1, n_runs + 1))}
+        for i, fname in enumerate(factor_names):
+            design_data[fname] = [c[i] for c in combos]
+        df = pd.DataFrame(design_data)
+        if randomize:
+            rng = np.random.default_rng(seed)
+            perm = rng.permutation(n_runs)
+            df = df.iloc[perm].reset_index(drop=True)
+            df.insert(0, "Run_Order", list(range(1, n_runs + 1)))
+        else:
+            df.insert(0, "Run_Order", df["Std_Order"])
+        df["Response_Y"] = np.nan
+        return df
 
     oa = OA_CATALOG[oa_name]["array"]
     expected_levels = OA_CATALOG[oa_name]["levels"]
