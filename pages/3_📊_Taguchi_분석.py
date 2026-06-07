@@ -295,6 +295,23 @@ if df is not None and len(df) > 0:
             "예측치와 실측치가 일치하는지 검증하세요."
         )
 
+        # 후속 분석 페이지를 위해 세션에 저장
+        st.session_state["analysis_result"] = {
+            "df_clean": df_clean,
+            "factor_cols": factor_cols,
+            "response_col": response_col,
+            "mean_tbl": mean_tbl,
+            "sn_tbl": sn_tbl,
+            "anova_df": anova_df,
+            "opt_df": opt_df,
+            "y_pred": y_pred,
+            "opt": opt,
+            "level_map": level_map,
+            "sn_type": sn_type,
+            "direction": direction,
+            "sig_factors": sig_factors,
+        }
+
         # ============================================================
         # Step 5: 결과 내보내기
         # ============================================================
