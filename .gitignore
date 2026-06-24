@@ -27,6 +27,9 @@ data/*.csv
 data/*.xlsx
 !data/.gitkeep
 
+# 반응최적화 결과 캐시 (확인실험 페이지가 세션 간에 참조)
+.cache/
+
 # Test outputs
 *.log
 .pytest_cache/

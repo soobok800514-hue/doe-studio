@@ -15,6 +15,7 @@ from core.desirability import (
     ResponseSpec, optimize_desirability,
     d_larger, d_smaller, d_target, overall_desirability,
 )
+from core.state_cache import save_opt_result
 
 st.set_page_config(page_title="반응최적화", page_icon="🎯", layout="wide")
 st.title("🎯 반응최적화 (Desirability Function)")
@@ -330,7 +331,7 @@ if df is not None and len(df) > 0:
                         fc: factor_levels[fc].index(val) + 1
                         for fc, val in zip(factor_cols, best_combo)
                     }
-                    st.session_state["opt_result"] = {
+                    opt_result = {
                         "optimal_factors": dict(zip(factor_cols, best_combo)),
                         "optimal_levels": optimal_levels,
                         "factor_levels": factor_levels,
@@ -339,6 +340,8 @@ if df is not None and len(df) > 0:
                         "overall_desirability": best_D,
                         "n_combos": len(all_combos),
                     }
+                    st.session_state["opt_result"] = opt_result
+                    save_opt_result(opt_result)
                 else:
                     st.error("최적 조합을 찾지 못했습니다. 사양 범위를 확인하세요.")
 

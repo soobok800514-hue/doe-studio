@@ -11,22 +11,67 @@ import numpy as np
 import plotly.graph_objects as go
 from scipy import stats
 
+from core.state_cache import load_opt_result
+
 st.set_page_config(page_title="확인 실험 검증", page_icon="✅", layout="wide")
 st.title("✅ 확인 실험 검증")
 st.caption("최적 조건으로 실시한 확인 실험 결과를 예측값과 비교하여 모형 타당성을 판정합니다.")
 
 # ── 이전 분석 결과 자동 로드 ────────────────────────────
+# 반응최적화(Desirability) 결과가 항상 Taguchi 분석의 주효과 기반 추천보다
+# 우선한다. 다른 브라우저 탭/세션에서 반응최적화를 실행했더라도 디스크 캐시에서
+# 불러와 확인실험이 같은 최적 조건을 기준으로 검증되도록 한다.
 ar = st.session_state.get("analysis_result", {})
-has_session = bool(ar)
+opt = st.session_state.get("opt_result", {}) or load_opt_result()
+has_opt = bool(opt)
+has_analysis = bool(ar)
+has_session = has_opt or has_analysis
 
 # ─────────────────────────────────────────────────────────
 # Step 1. 예측값 입력
 # ─────────────────────────────────────────────────────────
 st.markdown("### Step 1. 예측값 및 최적 조건")
 
-if has_session:
+if has_opt:
+    st.success("✅ 반응최적화 페이지의 결과를 자동으로 불러왔습니다.")
+    pred_keys = list(opt.get("predicted_responses", {}).keys())
+    if pred_keys:
+        response_default = pred_keys[0]
+        y_pred_default = float(opt["predicted_responses"][response_default])
+    else:
+        response_default = "Response_Y"
+        y_pred_default = 0.0
+
+    col_i1, col_i2 = st.columns(2)
+    with col_i1:
+        if len(pred_keys) > 1:
+            response_name = st.selectbox(
+                "검증할 응답변수", options=pred_keys, index=0,
+                help="반응최적화 결과에서 선택된 응답을 기준으로 확인 실험을 진행합니다."
+            )
+            y_pred = st.number_input(
+                "예측 최적값 (ŷ)", value=float(opt["predicted_responses"][response_name]), format="%.4f")
+        else:
+            response_name = st.text_input("응답변수", value=response_default)
+            y_pred = st.number_input("예측 최적값 (ŷ)", value=y_pred_default, format="%.4f")
+    with col_i2:
+        st.markdown("**최적 인자 조건**")
+        rows = []
+        for fc in opt["optimal_factors"]:
+            lv_num = opt["optimal_levels"][fc]
+            lv_val = opt["optimal_factors"][fc]
+            all_lvs = opt["factor_levels"][fc]
+            rows.append({
+                "인자": fc,
+                "최적 수준": f"수준 {lv_num}",
+                "값": f"{lv_val:.4f}",
+                "전체 수준": " / ".join([f"Lv{i+1}={v:.4f}" for i, v in enumerate(all_lvs)]),
+            })
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+elif has_analysis:
     st.success("✅ Taguchi 분석 페이지의 결과를 자동으로 불러왔습니다.")
-    y_pred_default  = float(ar["y_pred"])
+    y_pred_default = float(ar["y_pred"])
     response_default = ar["response_col"]
     opt_df = ar["opt_df"]
 
@@ -38,7 +83,7 @@ if has_session:
         st.markdown("**최적 인자 조건**")
         st.dataframe(opt_df, use_container_width=True, hide_index=True)
 else:
-    st.info("ℹ️ Taguchi 분석 페이지에서 분석을 먼저 실행하거나, 아래에 직접 입력하세요.")
+    st.info("ℹ️ Taguchi 분석 페이지 또는 반응최적화 페이지에서 분석을 먼저 실행하거나, 아래에 직접 입력하세요.")
     col_i1, col_i2 = st.columns(2)
     with col_i1:
         response_name = st.text_input("응답변수 이름", value="Response_Y")

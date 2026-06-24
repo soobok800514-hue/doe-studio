@@ -113,9 +113,24 @@ if df is not None and len(df) > 0:
         st.markdown("---")
         st.markdown("### Step 3. 분석 옵션")
 
+        # 적용된 옵션 초기화 (처음 방문 시)
+        if "applied_opts" not in st.session_state:
+            st.session_state["applied_opts"] = {
+                "sn_type": "smaller",
+                "direction": "min",
+                "pool_threshold": 0.0,
+            }
+        # 위젯 키 초기화 (처음 방문 시)
+        if "sn_type_widget" not in st.session_state:
+            st.session_state["sn_type_widget"] = st.session_state["applied_opts"]["sn_type"]
+        if "direction_widget" not in st.session_state:
+            st.session_state["direction_widget"] = st.session_state["applied_opts"]["direction"]
+        if "pool_threshold_widget" not in st.session_state:
+            st.session_state["pool_threshold_widget"] = st.session_state["applied_opts"]["pool_threshold"]
+
         col_sn1, col_sn2 = st.columns(2)
         with col_sn1:
-            sn_type = st.selectbox(
+            st.selectbox(
                 "S/N 비 유형",
                 options=["larger", "smaller", "nominal"],
                 format_func=lambda x: {
@@ -123,22 +138,48 @@ if df is not None and len(df) > 0:
                     "smaller": "🔽 Smaller-the-better (망소: 작을수록 좋음)",
                     "nominal": "🎯 Nominal-the-best (망목: 목표치에 근접)",
                 }[x],
+                key="sn_type_widget",
             )
         with col_sn2:
-            direction = st.selectbox(
+            st.selectbox(
                 "최적 수준 선택 방향 (평균 기준)",
                 options=["max", "min"],
                 format_func=lambda x: {
                     "max": "🔼 응답값이 큰 수준 (강도, 효율 등)",
                     "min": "🔽 응답값이 작은 수준 (소음, 결함 등)",
                 }[x],
+                key="direction_widget",
             )
 
-        pool_threshold = st.slider(
+        st.slider(
             "ANOVA 풀링 임계값 (기여율 % 미만 인자를 오차에 합산)",
-            min_value=0.0, max_value=20.0, value=0.0, step=0.5,
+            min_value=0.0, max_value=20.0, step=0.5,
+            key="pool_threshold_widget",
             help="0이면 풀링 안 함. 5~10이 일반적."
         )
+
+        # 적용 버튼 및 현재 적용 상태 표시
+        col_btn, col_status = st.columns([2, 5])
+        with col_btn:
+            apply_clicked = st.button("✅ 적용", type="primary", use_container_width=True)
+        with col_status:
+            _opts = st.session_state["applied_opts"]
+            _sn_label = {"larger": "망대(Larger)", "smaller": "망소(Smaller)", "nominal": "망목(Nominal)"}[_opts["sn_type"]]
+            _dir_label = {"max": "최대(응답값 큰 수준)", "min": "최소(응답값 작은 수준)"}[_opts["direction"]]
+            st.caption(
+                f"현재 적용된 옵션 — S/N: **{_sn_label}** | 방향: **{_dir_label}** | 풀링 임계: **{_opts['pool_threshold']}%**"
+            )
+
+        if apply_clicked:
+            st.session_state["applied_opts"]["sn_type"] = st.session_state["sn_type_widget"]
+            st.session_state["applied_opts"]["direction"] = st.session_state["direction_widget"]
+            st.session_state["applied_opts"]["pool_threshold"] = st.session_state["pool_threshold_widget"]
+            st.success("✅ 분석 옵션이 적용되었습니다. 아래 결과를 확인하세요.")
+
+        # 분석에는 적용된 옵션만 사용
+        sn_type = st.session_state["applied_opts"]["sn_type"]
+        direction = st.session_state["applied_opts"]["direction"]
+        pool_threshold = st.session_state["applied_opts"]["pool_threshold"]
 
         # ============================================================
         # Step 4: 분석 실행
